@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Agendamentos - Tema Espacial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Cores do Tema Espacial */
+        :root {
+            --space-dark: #1a1a2e; /* Preto muito escuro / Azul marinho escuro */
+            --space-blue: #0f3460; /* Azul espacial médio */
+            --space-light-blue: #16213e; /* Azul escuro mais claro */
+            --space-gray: #a9a9a9; /* Cinza médio */
+            --space-light-gray: #e0e0e0; /* Cinza muito claro */
+            --space-accent-cyan: #00ffff; /* Ciano brilhante para destaque */
+            --space-accent-purple: #8a2be2; /* Roxo para destaque */
+            --text-light: #ffffff; /* Texto claro */
+            --text-dark: #e0e0e0; /* Texto quase branco para contraste em fundos escuros */
+            --shadow-dark: rgba(0, 0, 0, 0.5); /* Sombra escura forte */
+            --shadow-light: rgba(0, 255, 255, 0.2); /* Sombra ciano sutil */
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif; /* Fonte moderna e limpa */
+            margin: 0;
+            padding: 0;
+            /* Fundo degradê de azul escuro para preto */
+            background: linear-gradient(to right bottom, var(--space-blue), var(--space-dark));
+            color: var(--text-dark); /* Texto claro padrão */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 400;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background-color: var(--space-light-blue); /* Container azul escuro mais claro */
+            padding: 40px;
+            border-radius: 15px; /* Bordas arredondadas */
+            box-shadow: 0 10px 30px var(--shadow-dark); /* Sombra proeminente */
+            border: 5px solid var(--space-accent-cyan); /* Borda ciano forte */
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+            /* Efeito de grade sutil para o fundo */
+            background:
+                linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px),
+                linear-gradient(180deg, rgba(255,255,255,.07) 1px, transparent 1px),
+                var(--space-light-blue); /* Fundo azul escuro com padrão de grade sutil */
+            background-size: 20px 20px;
+        }
+
+        /* Detalhes decorativos de brilho/estrelas (agora como nebulosas/galaxias) */
+        .container::before,
+        .container::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--space-accent-cyan) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(25px);
+            z-index: 0;
+        }
+
+        .container::before {
+            top: -50px;
+            left: -50px;
+            transform: rotate(45deg);
+        }
+
+        .container::after {
+            bottom: -50px;
+            right: -50px;
+            transform: rotate(-45deg);
+            background: radial-gradient(circle, var(--space-accent-purple) 0%, transparent 70%);
+        }
+
+        h1, h2 {
+            font-family: 'Orbitron', sans-serif; /* Fonte futurista */
+            text-align: center;
+            color: var(--space-accent-cyan); /* Títulos em ciano brilhante */
+            margin-bottom: 35px;
+            text-shadow: 0 0 15px var(--shadow-light); /* Sombra de brilho ciano */
+            font-size: 3.2em; /* Títulos maiores e mais chamativos */
+            font-weight: 700; /* Mais impacto */
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: var(--space-light-gray);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .appointment-form {
+            background-color: var(--space-blue); /* Fundo do formulário azul espacial */
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            border: 2px solid var(--space-accent-purple); /* Borda roxa de destaque */
+            box-shadow: 0 5px 15px var(--shadow-dark);
+            position: relative; /* Para o pseudo-elemento */
+            overflow: hidden; /* Para garantir que o brilho não vaze */
+        }
+
+        /* Detalhe de borda com brilho no formulário */
+        .appointment-form::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, var(--space-accent-cyan), var(--space-accent-purple));
+            z-index: -1;
+            filter: blur(8px);
+            opacity: 0.5;
+            border-radius: 15px; /* Bordas arredondadas maiores para o brilho */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-light); /* Labels em branco */
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.1);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: calc(100% - 24px);
+            padding: 12px;
+            border: 2px solid var(--space-accent-cyan); /* Borda ciano */
+            border-radius: 8px;
+            font-size: 1em;
+            color: var(--text-light); /* Texto do input branco */
+            background-color: var(--space-dark); /* Fundo do input preto escuro */
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--space-accent-purple); /* Borda roxa no foco */
+            box-shadow: 0 0 15px var(--shadow-light), inset 0 0 8px var(--space-accent-cyan); /* Sombra de brilho forte */
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .form-actions {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .form-actions button {
+            padding: 12px 28px; /* Botões um pouco maiores e mais largos */
+            border: none;
+            border-radius: 25px; /* Botões arredondados */
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px var(--shadow-dark); /* Sombra nos botões */
+            text-transform: uppercase; /* Texto em maiúsculas */
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif; /* Fonte futurista para botões */
+        }
+
+        /* Botão de salvar agendamento */
+        .form-actions button#saveAppointmentBtn {
+            background-color: var(--space-accent-cyan); /* Ciano brilhante */
+            color: var(--space-dark); /* Texto escuro */
+            border: 2px solid var(--space-accent-purple); /* Borda roxa */
+        }
+
+        .form-actions button#saveAppointmentBtn:hover {
+            background-color: #33ffff; /* Um tom mais claro no hover */
+            transform: translateY(-5px); /* Efeito de "levantar" mais pronunciado */
+            box-shadow: 0 8px 20px var(--shadow-light);
+        }
+
+        /* Botão de cancelar edição */
+        .form-actions button#cancelEditBtn {
+            background-color: var(--space-gray);
+            color: var(--space-dark);
+            border: 2px solid var(--space-accent-cyan);
+        }
+
+        .form-actions button#cancelEditBtn:hover {
+            background-color: #bfbfbf;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(169, 169, 169, 0.4);
+        }
+
+        hr {
+            border: 0;
+            height: 3px; /* Linha mais grossa */
+            background: linear-gradient(to right, var(--space-accent-cyan), var(--space-accent-purple), var(--space-accent-cyan)); /* Degradê ciano/roxo */
+            margin: 50px 0;
+            border-radius: 2px;
+            box-shadow: 0 1px 10px var(--shadow-light);
+        }
+
+        /* NOVO ESTILO PARA O CONTAINER DA LISTA */
+        .appointments-list-container {
+            background-color: var(--space-blue); /* Azul espacial com transparência */
+            padding: 30px; /* Preenchimento interno */
+            border-radius: 15px; /* Bordas arredondadas */
+            margin-top: 40px; /* Espaço acima */
+            box-shadow: inset 0 0 20px rgba(0, 255, 255, 0.1); /* Sombra interna sutil */
+            border: 1px solid var(--space-accent-cyan); /* Borda sólida */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Detalhe de nebulosa no container da lista */
+        .appointments-list-container::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(30px);
+            z-index: 0;
+        }
+        .appointments-list-container::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(25px);
+            z-index: 0;
+        }
+
+        .appointments-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            position: relative;
+            z-index: 1; /* Garante que os cards fiquem acima dos efeitos de fundo */
+        }
+
+        .appointment-card {
+            background-color: var(--space-dark); /* Fundo do card preto escuro */
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow-dark);
+            border: 3px solid var(--space-accent-purple); /* Borda roxa nos cards */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .appointment-card:hover {
+            transform: translateY(-10px); /* Efeito de levantar mais */
+            box-shadow: 0 15px 30px var(--shadow-light);
+            border-color: var(--space-accent-cyan); /* Borda ciano no hover */
+        }
+
+        /* Detalhe de estrela no canto do card (agora um brilho estelar) */
+        .appointment-card::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.7) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.5;
+            filter: blur(10px);
+            z-index: 1;
+        }
+        .appointment-card::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: -10px;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.7) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.5;
+            filter: blur(8px);
+            z-index: 1;
+        }
+
+
+        .appointment-card h3 {
+            font-family: 'Roboto', sans-serif; /* Usando Roboto para o título do card */
+            color: var(--space-accent-cyan);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+
+        .appointment-card p {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            color: var(--text-light); /* Texto claro */
+        }
+
+        .appointment-card .date-time {
+            font-weight: 600;
+            color: var(--space-accent-purple); /* Data/Hora em roxo */
+            font-size: 1.1em;
+            text-shadow: 0 0 3px rgba(138, 43, 226, 0.2);
+        }
+
+        .appointment-card .notes {
+            font-style: italic;
+            color: var(--space-gray); /* Notas em cinza */
+            font-size: 0.95em;
+            white-space: pre-wrap; /* Preserva quebras de linha no textarea */
+        }
+
+        .appointment-card .card-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: relative; /* Para z-index sobre pseudo-elementos */
+            z-index: 2;
+        }
+
+        .appointment-card .card-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px; /* Botões arredondados */
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 8px var(--shadow-dark);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .appointment-card .card-actions .edit-button {
+            background-color: var(--space-accent-cyan); /* Ciano para editar */
+            color: var(--space-dark);
+            border: 1px solid var(--space-accent-purple);
+        }
+
+        .appointment-card .card-actions .edit-button:hover {
+            background-color: #33ffff;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px var(--shadow-light);
+        }
+
+        .appointment-card .card-actions .delete-button {
+            background-color: var(--space-accent-purple); /* Roxo para excluir */
+            color: var(--text-light);
+            border: 1px solid var(--space-accent-cyan);
+        }
+
+        .appointment-card .card-actions .delete-button:hover {
+            background-color: #9f40ff;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(138, 43, 226, 0.4);
+        }
+
+        /* Mensagem de nenhum agendamento */
+        .no-appointments {
+            text-align: center;
+            color: var(--space-light-gray);
+            font-style: italic;
+            padding: 20px;
+            border: 1px dashed var(--space-gray);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        /* Media Queries para responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 2.5em;
+            }
+
+            h2 {
+                font-size: 2em;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .form-actions button {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .appointments-list {
+                grid-template-columns: 1fr; /* Uma coluna em telas menores */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerenciador de Agendamentos</h1>
+
+        <form id="appointment-form" class="appointment-form">
+            <input type="hidden" id="appointment-id">
+
+            <div class="form-group">
+                <label for="appointment-title">Serviço:</label>
+                <input type="text" id="appointment-title" placeholder="Ex: Escreva seu nome..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="appointment-date">Data e Hora:</label>
+                <input type="datetime-local" id="appointment-date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="client-name">Nome do Cliente:</label>
+                <input type="text" id="client-name" placeholder="Ex: Tipo de serviço" required>
+            </div>
+
+            <div class="form-group">
+                <label for="appointment-notes">Observações:</label>
+                <textarea id="appointment-notes" placeholder="Ex: Lembrar de documentos, Sala 3"></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" id="saveAppointmentBtn">Adicionar Agendamento</button>
+                <button type="button" id="cancelEditBtn" style="display: none;">Limpar Formulário</button>
+            </div>
+        </form>
+
+        <hr>
+
+        <h2>Próximos Agendamentos</h2>
+        <div class="appointments-list-container">
+            <ul id="appointments-list" class="appointments-list">
+                </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_URL = 'http://localhost:3000/api/appointments';
+
+            const appointmentForm = document.getElementById('appointment-form');
+            const appointmentIdInput = document.getElementById('appointment-id');
+            const appointmentTitleInput = document.getElementById('appointment-title');
+            const appointmentDateInput = document.getElementById('appointment-date');
+            const clientNameInput = document.getElementById('client-name');
+            const appointmentNotesInput = document.getElementById('appointment-notes');
+            const appointmentsList = document.getElementById('appointments-list');
+            const cancelEditButton = document.getElementById('cancelEditBtn');
+            const saveAppointmentButton = document.getElementById('saveAppointmentBtn');
+
+            // Função para formatar a data e hora para exibição
+            function formatDateTimeForDisplay(isoString) {
+                const date = new Date(isoString);
+                const addLeadingZero = num => num < 10 ? '0' + num : num;
+
+                const day = addLeadingZero(date.getDate());
+                const month = addLeadingZero(date.getMonth() + 1); // Mês é 0-indexed
+                const year = date.getFullYear();
+                const hours = addLeadingZero(date.getHours());
+                const minutes = addLeadingZero(date.getMinutes());
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            }
+
+            // Função para buscar e exibir agendamentos
+            async function fetchAppointments() {
+                try {
+                    const response = await fetch(API_URL);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const appointments = await response.json();
+                    appointmentsList.innerHTML = ''; // Limpa a lista existente
+
+                    if (appointments.length === 0) {
+                        appointmentsList.innerHTML = '<p class="no-appointments">Nenhum agendamento encontrado. Que tal adicionar um?</p>';
+                        return;
+                    }
+
+                    appointments.forEach(appt => {
+                        const li = document.createElement('li');
+                        li.classList.add('appointment-card'); // Adiciona a classe para estilo do card
+                        li.innerHTML = `
+                            <div>
+                                <h3>${appt.title}</h3>
+                                <p class="date-time"><strong>Quando:</strong> ${formatDateTimeForDisplay(appt.scheduled_date)}</p>
+                                <p><strong>Cliente:</strong> ${appt.client_name}</p>
+                                <p class="notes">${appt.notes ? `<strong>Obs:</strong> ${appt.notes}` : 'Sem observações'}</p>
+                            </div>
+                            <div class="card-actions">
+                                <button class="edit-button" data-id="${appt.id}">Editar</button>
+                                <button class="delete-button" data-id="${appt.id}">Excluir</button>
+                            </div>
+                        `;
+                        appointmentsList.appendChild(li);
+                    });
+                } catch (error) {
+                    console.error('Erro ao buscar agendamentos:', error);
+                    appointmentsList.innerHTML = '<p class="no-appointments" style="color: red;">Erro ao carregar agendamentos. Verifique se o backend está rodando.</p>';
+                }
+            }
+
+            // Função para limpar o formulário e resetar o botão
+            function clearForm() {
+                appointmentIdInput.value = '';
+                appointmentTitleInput.value = '';
+                appointmentDateInput.value = '';
+                clientNameInput.value = '';
+                appointmentNotesInput.value = '';
+                saveAppointmentButton.textContent = 'Adicionar Agendamento'; // Reseta o texto do botão
+                cancelEditButton.style.display = 'none'; // Esconde o botão "Limpar Formulário"
+            }
+
+            // Lidar com o envio do formulário (Adicionar ou Atualizar)
+            appointmentForm.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Impede o recarregamento da página
+
+                const id = appointmentIdInput.value;
+                const title = appointmentTitleInput.value;
+                const scheduled_date = appointmentDateInput.value;
+                const client_name = clientNameInput.value;
+                const notes = appointmentNotesInput.value;
+
+                const appointmentData = { title, scheduled_date, client_name, notes };
+
+                try {
+                    let response;
+                    if (id) {
+                        // Se há um ID, é uma atualização (PUT)
+                        response = await fetch(`${API_URL}/${id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(appointmentData),
+                        });
+                    } else {
+                        // Caso contrário, é uma nova criação (POST)
+                        response = await fetch(API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(appointmentData),
+                        });
+                    }
+
+                    if (response.ok) {
+                        clearForm(); // Limpa o formulário após sucesso
+                        fetchAppointments(); // Recarrega a lista de agendamentos
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Erro: ${errorData.error || errorData.message || 'Falha na operação.'}`);
+                    }
+                } catch (error) {
+                    console.error('Erro ao salvar agendamento:', error);
+                    alert('Ocorreu um erro ao salvar o agendamento. Verifique sua conexão e o servidor.');
+                }
+            });
+
+            // Delegação de eventos para os botões "Editar" e "Excluir"
+            appointmentsList.addEventListener('click', async (e) => {
+                const id = e.target.dataset.id; // Pega o ID do agendamento do atributo data-id
+
+                if (e.target.classList.contains('edit-button')) {
+                    // Lógica para preencher o formulário para edição
+                    try {
+                        const response = await fetch(`${API_URL}/${id}`);
+                        if (!response.ok) throw new Error('Agendamento não encontrado para edição.');
+                        const appt = await response.json();
+
+                        appointmentIdInput.value = appt.id;
+                        appointmentTitleInput.value = appt.title;
+                        // O input datetime-local espera o formato 'YYYY-MM-DDTHH:MM'
+                        appointmentDateInput.value = appt.scheduled_date.slice(0, 16);
+                        clientNameInput.value = appt.client_name;
+                        appointmentNotesInput.value = appt.notes;
+
+                        saveAppointmentButton.textContent = 'Atualizar Agendamento'; // Muda o texto do botão
+                        cancelEditButton.style.display = 'inline-block'; // Mostra o botão "Limpar Formulário"
+                    } catch (error) {
+                        console.error('Erro ao carregar agendamento para edição:', error);
+                        alert('Ocorreu um erro ao carregar o agendamento para edição.');
+                    }
+                } else if (e.target.classList.contains('delete-button')) {
+                    // Lógica para excluir um agendamento
+                    if (confirm('Tem certeza de que deseja excluir este agendamento?')) {
+                        try {
+                            const response = await fetch(`${API_URL}/${id}`, {
+                                method: 'DELETE',
+                            });
+                            if (response.ok) {
+                                fetchAppointments(); // Recarrega a lista após exclusão
+                            } else {
+                                const errorData = await response.json();
+                                alert(`Erro: ${errorData.error || errorData.message || 'Falha ao excluir.'}`);
+                            }
+                        } catch (error) {
+                            console.error('Erro ao excluir agendamento:', error);
+                            alert('Ocorreu um erro ao excluir o agendamento.');
+                        }
+                    }
+                }
+            });
+
+            // Evento para o botão "Limpar Formulário"
+            cancelEditButton.addEventListener('click', clearForm);
+
+            // Carrega os agendamentos ao carregar a página pela primeira vez
+            fetchAppointments();
+        });
+    </script>
+</body>
+</html>
